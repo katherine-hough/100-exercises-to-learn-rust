@@ -3,10 +3,16 @@
 //  sum each half in a separate thread.
 //  Hint: check out `Vec::leak`.
 
-use std::thread;
+use std::thread::{self, JoinHandle};
 
 pub fn sum(v: Vec<i32>) -> i32 {
-    todo!()
+    let v = v.leak();
+    let mid = v.len() / 2;
+    let left = &v[..mid];
+    let right = &v[mid..];
+    let left_handle: JoinHandle<i32> = thread::spawn(|| left.iter().sum());
+    let right_handle: JoinHandle<i32> = thread::spawn(|| right.iter().sum());
+    left_handle.join().unwrap() + right_handle.join().unwrap()
 }
 
 #[cfg(test)]
